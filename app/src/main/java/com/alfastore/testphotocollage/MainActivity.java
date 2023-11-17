@@ -1,38 +1,41 @@
 package com.alfastore.testphotocollage;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+import android.graphics.Canvas;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, Camera.PictureCallback {
+public class MainActivity extends Activity implements SurfaceHolder.Callback, Camera.PictureCallback {
 
     private SurfaceHolder surfaceHolder;
     private Camera camera;
@@ -40,10 +43,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static final int REQUEST_CODE = 100;
 
     private String[] neededPermissions = new String[]{CAMERA, WRITE_EXTERNAL_STORAGE};
-
-    private int indexImage = 0;
-    private int indexCamera = 0;
     private SurfaceView[] SVS = new SurfaceView[6];
+    private ImageView[] IVS = new ImageView[5];
+
+    private Bitmap bmp;
+    private int indexCamera = 0;
+
+    private ConstraintLayout clContent;
+    private TextView tvSysDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +63,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         SVS[3] = findViewById(R.id.surfaceView4);
         SVS[4] = findViewById(R.id.surfaceView5);
         SVS[5] = findViewById(R.id.surfaceView6);
+
+        IVS[0] = findViewById(R.id.ivIcon1);
+        IVS[1] = findViewById(R.id.ivIcon2);
+        IVS[2] = findViewById(R.id.ivIcon3);
+        IVS[3] = findViewById(R.id.ivIcon4);
+        IVS[4] = findViewById(R.id.ivIcon5);
 
         if (SVS[0] != null) {
             boolean result = checkPermission();
@@ -135,14 +148,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     private void setupSurfaceHolder() {
         if (indexCamera < 6){
-            setViewVisibility(R.id.startBtn, View.VISIBLE);
+            setViewVisibility(R.id.captureBtn, View.VISIBLE);
             SVS[indexCamera].setVisibility(View.VISIBLE);
 
             surfaceHolder = SVS[indexCamera].getHolder();
             surfaceHolder.addCallback(this);
-            setBtnClick();
+            setCaptureBtnClick();
         }else {
-            setViewVisibility(R.id.startBtn, View.GONE);
+            setViewVisibility(R.id.captureBtn, View.GONE);
 
             if (camera != null) {
                 camera.stopPreview();
@@ -151,19 +164,52 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
 
             setViewVisibility(R.id.saveBtn, View.VISIBLE);
+
+            tvSysDate = (TextView) findViewById(R.id.tvSysDate);
+
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            String date = dateFormat.format(calendar.getTime());
+            tvSysDate.setText(date);
+
+            setViewVisibility(R.id.tvSysDate, View.VISIBLE);
+            setSaveBtnClick();
         }
     }
 
-    private void setBtnClick() {
-        Button startBtn = findViewById(R.id.startBtn);
-        if (startBtn != null) {
-            startBtn.setOnClickListener(new View.OnClickListener() {
+    private void setCaptureBtnClick() {
+        Button captureBtn = findViewById(R.id.captureBtn);
+        if (captureBtn != null) {
+            captureBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     captureImage();
                 }
             });
         }
+    }
+
+    private void setSaveBtnClick() {
+        Button saveBtn = findViewById(R.id.saveBtn);
+        if (saveBtn != null) {
+            saveBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    clContent = (ConstraintLayout) findViewById(R.id.clContent);
+                    Bitmap getCaptureCollageAllImage = getBitMapFromView(clContent);
+
+                    saveImage(getCaptureCollageAllImage);
+                }
+            });
+        }
+    }
+
+    public static Bitmap getBitMapFromView(View view){
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        view.draw(canvas);
+
+        return returnedBitmap;
     }
 
     public void captureImage() {
@@ -229,38 +275,46 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @Override
     public void onPictureTaken(byte[] bytes, Camera camera) {
-        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-        Matrix matrix = new Matrix();
-        matrix.postRotate(90);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+        surfaceHolder.addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(@NonNull SurfaceHolder holder) {
+                Canvas c = holder.lockCanvas(null);
 
-        ImageView[] IMGS = new ImageView[6];
+                c.drawBitmap(bmp, 10, 10, null);
 
-        IMGS[0] = findViewById(R.id.ivCaptureImage);
-        IMGS[1] = findViewById(R.id.ivCaptureImage2);
-        IMGS[2] = findViewById(R.id.ivCaptureImage3);
-        IMGS[3] = findViewById(R.id.ivCaptureImage4);
-        IMGS[4] = findViewById(R.id.ivCaptureImage5);
-        IMGS[5] = findViewById(R.id.ivCaptureImage6);
+                holder.unlockCanvasAndPost(c);
+            }
 
-        IMGS[indexImage].setImageBitmap(Bitmap.createScaledBitmap(rotatedBitmap, IMGS[indexImage].getWidth(), IMGS[indexImage].getHeight(), false));
-        IMGS[indexImage].setVisibility(View.VISIBLE);
-//        saveImage(bytes);
-        indexImage++;
-        Log.e("CEK", String.valueOf(indexCamera));
+            @Override
+            public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+
+            }
+        });
+
+        bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+        if (indexCamera<5) {
+            IVS[indexCamera].setVisibility(View.GONE);
+        }
+
         indexCamera++;
         setupSurfaceHolder();
         resetCamera();
     }
 
-    private void saveImage(byte[] bytes) {
+    private void saveImage(Bitmap getBitmap) {
         FileOutputStream outStream;
         try {
-            String fileName = "TUTORIALWING_" + System.currentTimeMillis() + ".jpg";
+            String fileName = "Capture_" + System.currentTimeMillis() + ".jpg";
             File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), fileName);
             outStream = new FileOutputStream(file);
-            outStream.write(bytes);
+            getBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outStream);
             outStream.close();
             Toast.makeText(MainActivity.this, "Picture Saved: " + fileName, Toast.LENGTH_LONG).show();
         } catch (FileNotFoundException e) {
