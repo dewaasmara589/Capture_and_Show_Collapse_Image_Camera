@@ -15,6 +15,7 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -38,17 +39,25 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     public static final int REQUEST_CODE = 100;
 
-    private SurfaceView surfaceView;
-
     private String[] neededPermissions = new String[]{CAMERA, WRITE_EXTERNAL_STORAGE};
+
+    private int indexImage = 0;
+    private int indexCamera = 0;
+    private SurfaceView[] SVS = new SurfaceView[6];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        surfaceView = findViewById(R.id.surfaceView);
-        if (surfaceView != null) {
+        SVS[0] = findViewById(R.id.surfaceView);
+        SVS[1] = findViewById(R.id.surfaceView2);
+        SVS[2] = findViewById(R.id.surfaceView3);
+        SVS[3] = findViewById(R.id.surfaceView4);
+        SVS[4] = findViewById(R.id.surfaceView5);
+        SVS[5] = findViewById(R.id.surfaceView6);
+
+        if (SVS[0] != null) {
             boolean result = checkPermission();
             if (result) {
                 setupSurfaceHolder();
@@ -125,12 +134,24 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     private void setupSurfaceHolder() {
-        setViewVisibility(R.id.startBtn, View.VISIBLE);
-        setViewVisibility(R.id.surfaceView, View.VISIBLE);
+        if (indexCamera < 6){
+            setViewVisibility(R.id.startBtn, View.VISIBLE);
+            SVS[indexCamera].setVisibility(View.VISIBLE);
 
-        surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.addCallback(this);
-        setBtnClick();
+            surfaceHolder = SVS[indexCamera].getHolder();
+            surfaceHolder.addCallback(this);
+            setBtnClick();
+        }else {
+            setViewVisibility(R.id.startBtn, View.GONE);
+
+            if (camera != null) {
+                camera.stopPreview();
+                camera.release();
+                camera = null;
+            }
+
+            setViewVisibility(R.id.saveBtn, View.VISIBLE);
+        }
     }
 
     private void setBtnClick() {
@@ -214,10 +235,22 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         matrix.postRotate(90);
         Bitmap rotatedBitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
 
-        ImageView image = (ImageView) findViewById(R.id.ivCaptureImage);
-        image.setImageBitmap(Bitmap.createScaledBitmap(rotatedBitmap, 100, 150, false));
-        image.setVisibility(View.VISIBLE);
+        ImageView[] IMGS = new ImageView[6];
+
+        IMGS[0] = findViewById(R.id.ivCaptureImage);
+        IMGS[1] = findViewById(R.id.ivCaptureImage2);
+        IMGS[2] = findViewById(R.id.ivCaptureImage3);
+        IMGS[3] = findViewById(R.id.ivCaptureImage4);
+        IMGS[4] = findViewById(R.id.ivCaptureImage5);
+        IMGS[5] = findViewById(R.id.ivCaptureImage6);
+
+        IMGS[indexImage].setImageBitmap(Bitmap.createScaledBitmap(rotatedBitmap, IMGS[indexImage].getWidth(), IMGS[indexImage].getHeight(), false));
+        IMGS[indexImage].setVisibility(View.VISIBLE);
 //        saveImage(bytes);
+        indexImage++;
+        Log.e("CEK", String.valueOf(indexCamera));
+        indexCamera++;
+        setupSurfaceHolder();
         resetCamera();
     }
 
