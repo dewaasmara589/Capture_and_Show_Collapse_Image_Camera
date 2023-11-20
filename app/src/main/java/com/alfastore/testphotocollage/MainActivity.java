@@ -12,15 +12,20 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +40,7 @@ import java.util.Calendar;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback, Camera.PictureCallback {
 
@@ -45,10 +51,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
 
     private String[] neededPermissions = new String[]{CAMERA};
     private SurfaceView[] SVS = new SurfaceView[6];
-    private ImageView[] IVS = new ImageView[5];
+    private ImageView[] IVS = new ImageView[6];
 
     private Bitmap bmp;
     private int indexCamera = 0;
+    private int indexPhoto = 0;
 
     private ConstraintLayout clContent;
     private TextView tvSysDate;
@@ -73,11 +80,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
         SVS[4] = findViewById(R.id.surfaceView5);
         SVS[5] = findViewById(R.id.surfaceView6);
 
-        IVS[0] = findViewById(R.id.ivIcon1);
-        IVS[1] = findViewById(R.id.ivIcon2);
-        IVS[2] = findViewById(R.id.ivIcon3);
-        IVS[3] = findViewById(R.id.ivIcon4);
-        IVS[4] = findViewById(R.id.ivIcon5);
+        IVS[0] = findViewById(R.id.ivIcon);
+        IVS[1] = findViewById(R.id.ivIcon1);
+        IVS[2] = findViewById(R.id.ivIcon2);
+        IVS[3] = findViewById(R.id.ivIcon3);
+        IVS[4] = findViewById(R.id.ivIcon4);
+        IVS[5] = findViewById(R.id.ivIcon5);
+
+        for (int a = 1; a < IVS.length; a++) {
+            IVS[a].setBackgroundResource(R.drawable.ic_no_photo);
+            IVS[a].getLayoutParams().height = 100;
+            IVS[a].getLayoutParams().width = 100;
+        }
 
         if (SVS[0] != null) {
             boolean result = checkPermission();
@@ -205,20 +219,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
                 @Override
                 public void onClick(View view) {
                     clContent = (ConstraintLayout) findViewById(R.id.clContent);
-                    Bitmap getCaptureCollageAllImage = getBitMapFromView(clContent);
 
-                    saveImage(getCaptureCollageAllImage);
+                    Bitmap returnedBitmap = Bitmap.createBitmap(clContent.getWidth(), clContent.getHeight(), Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(returnedBitmap);
+                    clContent.draw(canvas);
+
+                    saveImage(returnedBitmap);
                 }
             });
         }
-    }
-
-    public static Bitmap getBitMapFromView(View view){
-        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(returnedBitmap);
-        view.draw(canvas);
-
-        return returnedBitmap;
     }
 
     public void captureImage() {
@@ -285,36 +294,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
     @Override
     public void onPictureTaken(byte[] bytes, Camera camera) {
 
-        surfaceHolder.addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(@NonNull SurfaceHolder holder) {
-                Canvas c = holder.lockCanvas(null);
-
-                c.drawBitmap(bmp, 10, 10, null);
-
-                holder.unlockCanvasAndPost(c);
-            }
-
-            @Override
-            public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-
-            }
-
-            @Override
-            public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-
-            }
-        });
-
         bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-        if (indexCamera<5) {
-            IVS[indexCamera].setVisibility(View.GONE);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(90);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+
+        // set to drawable set background
+        BitmapDrawable ob = new BitmapDrawable(getResources(), rotatedBitmap);
+
+        IVS[indexPhoto].setBackground(ob);
+        IVS[indexPhoto].setVisibility(View.VISIBLE);
+
+        if (indexPhoto < 5){
+            indexPhoto++;
+            IVS[indexPhoto].setVisibility(View.GONE);
         }
 
         indexCamera++;
         setupSurfaceHolder();
         resetCamera();
+
+        IVS[indexPhoto].setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
     }
 
     private void saveImage(Bitmap getBitmap) {

@@ -32,6 +32,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
 
+                <ImageView
+                    android:id="@+id/ivIcon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside" />
+
             </RelativeLayout>
 
             <RelativeLayout
@@ -47,10 +55,9 @@
 
                 <ImageView
                     android:id="@+id/ivIcon1"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_centerInParent="true"
-                    android:src="@drawable/ic_no_photo" />
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true" />
 
             </RelativeLayout>
 
@@ -77,10 +84,9 @@
 
                 <ImageView
                     android:id="@+id/ivIcon2"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_centerInParent="true"
-                    android:src="@drawable/ic_no_photo" />
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true" />
 
             </RelativeLayout>
 
@@ -96,10 +102,9 @@
 
                 <ImageView
                     android:id="@+id/ivIcon3"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_centerInParent="true"
-                    android:src="@drawable/ic_no_photo" />
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true" />
 
             </RelativeLayout>
 
@@ -126,10 +131,9 @@
 
                 <ImageView
                     android:id="@+id/ivIcon4"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_centerInParent="true"
-                    android:src="@drawable/ic_no_photo" />
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true" />
 
             </RelativeLayout>
 
@@ -145,10 +149,9 @@
 
                 <ImageView
                     android:id="@+id/ivIcon5"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_centerInParent="true"
-                    android:src="@drawable/ic_no_photo" />
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true" />
 
             </RelativeLayout>
 
