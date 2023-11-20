@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import static android.Manifest.permission.CAMERA;
@@ -42,7 +43,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
 
     public static final int REQUEST_CODE = 100;
 
-    private String[] neededPermissions = new String[]{CAMERA, WRITE_EXTERNAL_STORAGE};
+    private String[] neededPermissions = new String[]{CAMERA};
     private SurfaceView[] SVS = new SurfaceView[6];
     private ImageView[] IVS = new ImageView[5];
 
@@ -56,6 +57,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.R){
+            String str = WRITE_EXTERNAL_STORAGE;
+
+            int n = neededPermissions.length;
+            String[] newArray = Arrays.copyOf(neededPermissions, n + 1);
+            newArray[n] = str;
+        }
 
         SVS[0] = findViewById(R.id.surfaceView);
         SVS[1] = findViewById(R.id.surfaceView2);
