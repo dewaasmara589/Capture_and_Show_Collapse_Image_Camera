@@ -12,18 +12,17 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -37,10 +36,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback, Camera.PictureCallback {
 
@@ -59,6 +58,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
 
     private ConstraintLayout clContent;
     private TextView tvSysDate;
+
+    private ImageView ibFlash;
+    private boolean flash = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,24 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
                 setupSurfaceHolder();
             }
         }
+
+        ibFlash = (ImageButton) findViewById(R.id.ibFlash);
+        ibFlash.setImageResource(R.drawable.ic_flash_on);
+
+        ibFlash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                flash = ! flash;
+
+                if (flash){
+                    ibFlash.setImageResource(R.drawable.ic_flash_off);
+                }else {
+                    ibFlash.setImageResource(R.drawable.ic_flash_on);
+                }
+
+                resetCamera();
+            }
+        });
     }
 
     private boolean checkPermission() {
@@ -238,18 +258,42 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        startCamera();
-    }
+//        startCamera();
 
-    private void startCamera() {
         camera = Camera.open();
-        camera.setDisplayOrientation(90);
+
         try {
+            // Set the SurfaceHolder for the camera preview
             camera.setPreviewDisplay(surfaceHolder);
+
+            // Get the camera parameters
+            Camera.Parameters parameters = camera.getParameters();
+
+            // Find the best preview size for your requirements
+            Camera.Size bestSize = getBestPreviewSize(parameters);
+
+            // Set the preview size
+            parameters.setPreviewSize(bestSize.width, bestSize.height);
+
+            // Apply the parameters to the camera
+            camera.setParameters(parameters);
+
+            camera.setDisplayOrientation(90);
+
+            // Start the camera preview
             camera.startPreview();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Camera.Size getBestPreviewSize(Camera.Parameters parameters) {
+        // Get the supported preview sizes
+        List<Camera.Size> supportedSizes = parameters.getSupportedPreviewSizes();
+
+        // Choose the best size based on your criteria
+        // Here, we'll just choose the first supported size as an example
+        return supportedSizes.get(0);
     }
 
     @Override
@@ -267,8 +311,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
             // Stop if preview surface is already running.
             camera.stopPreview();
             try {
-                // Set preview display
+                // Set the SurfaceHolder for the camera preview
                 camera.setPreviewDisplay(surfaceHolder);
+
+                // Get the camera parameters
+                Camera.Parameters parameters = camera.getParameters();
+
+                if (flash){
+                    parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                }else{
+                    parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                }
+
+                // Find the best preview size for your requirements
+                Camera.Size bestSize = getBestPreviewSize(parameters);
+
+                // Set the preview size
+                parameters.setPreviewSize(bestSize.width, bestSize.height);
+
+                // Apply the parameters to the camera
+                camera.setParameters(parameters);
+
+                camera.setDisplayOrientation(90);
             } catch (IOException e) {
                 e.printStackTrace();
             }

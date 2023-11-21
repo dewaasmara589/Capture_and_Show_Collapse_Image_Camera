@@ -23,6 +23,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <RelativeLayout
+                android:id="@+id/rl1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" >
@@ -179,9 +180,10 @@
         app:layout_constraintWidth_percent="0.5"
         android:layout_gravity="center_horizontal|bottom"
         android:text="TAKE PHOTO"
-        android:layout_marginTop="15dp"
         android:visibility="gone"
+        android:backgroundTint="@color/purple_700"
         app:layout_constraintTop_toBottomOf="@id/clContent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -192,11 +194,21 @@
         app:layout_constraintWidth_percent="0.5"
         android:layout_gravity="center_horizontal|bottom"
         android:text="Save"
-        android:layout_marginTop="15dp"
         android:backgroundTint="@color/teal_700"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/clContent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageButton
+        android:id="@+id/ibFlash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:background="@null"
+        app:layout_constraintTop_toBottomOf="@id/clContent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
