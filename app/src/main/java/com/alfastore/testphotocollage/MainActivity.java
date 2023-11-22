@@ -12,12 +12,14 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -93,6 +95,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
             IVS[a].setBackgroundResource(R.drawable.ic_no_photo);
             IVS[a].getLayoutParams().height = 100;
             IVS[a].getLayoutParams().width = 100;
+            IVS[a].requestLayout();
+            IVS[a].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         }
 
         if (SVS[0] != null) {
@@ -119,6 +123,35 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
                 resetCamera();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (indexCamera > 0 && indexCamera < 7){
+            if (indexCamera == 6){
+                tvSysDate.setText("");
+                setViewVisibility(R.id.captureBtn, View.VISIBLE);
+                setViewVisibility(R.id.saveBtn, View.GONE);
+            }else {
+                indexPhoto--;
+            }
+
+            for (int b = indexCamera; b < IVS.length; b++) {
+                IVS[b].setBackgroundResource(R.drawable.ic_no_photo);
+                IVS[b].getLayoutParams().height = 100;
+                IVS[b].getLayoutParams().width = 100;
+                IVS[b].requestLayout();
+                IVS[b].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                IVS[b].setVisibility(View.VISIBLE);
+            }
+
+            indexCamera--;
+            IVS[indexCamera].setVisibility(View.INVISIBLE);
+            setupSurfaceHolder();
+            resetCamera();
+        }else {
+            super.onBackPressed();
+        }
     }
 
     private boolean checkPermission() {
@@ -192,19 +225,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
     private void setupSurfaceHolder() {
         if (indexCamera < 6){
             setViewVisibility(R.id.captureBtn, View.VISIBLE);
-            SVS[indexCamera].setVisibility(View.VISIBLE);
 
             surfaceHolder = SVS[indexCamera].getHolder();
             surfaceHolder.addCallback(this);
             setCaptureBtnClick();
         }else {
             setViewVisibility(R.id.captureBtn, View.GONE);
-
-            if (camera != null) {
-                camera.stopPreview();
-                camera.release();
-                camera = null;
-            }
 
             setViewVisibility(R.id.saveBtn, View.VISIBLE);
 
@@ -274,6 +300,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
 
             // Set the preview size
             parameters.setPreviewSize(bestSize.width, bestSize.height);
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 
             // Apply the parameters to the camera
             camera.setParameters(parameters);
@@ -329,6 +356,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
                 // Set the preview size
                 parameters.setPreviewSize(bestSize.width, bestSize.height);
 
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+
                 // Apply the parameters to the camera
                 camera.setParameters(parameters);
 
@@ -372,7 +401,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
 
         if (indexPhoto < 5){
             indexPhoto++;
-            IVS[indexPhoto].setVisibility(View.GONE);
+            IVS[indexPhoto].setVisibility(View.INVISIBLE);
         }
 
         indexCamera++;
