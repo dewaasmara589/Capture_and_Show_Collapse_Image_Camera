@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -92,7 +93,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
         IVS[5] = findViewById(R.id.ivIcon5);
 
         for (int a = 1; a < IVS.length; a++) {
-            IVS[a].setBackgroundResource(R.drawable.ic_no_photo);
+            IVS[a].setImageResource(R.drawable.ic_no_photo);
             IVS[a].getLayoutParams().height = 100;
             IVS[a].getLayoutParams().width = 100;
             IVS[a].requestLayout();
@@ -136,13 +137,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
                 indexPhoto--;
             }
 
-            for (int b = indexCamera; b < IVS.length; b++) {
-                IVS[b].setBackgroundResource(R.drawable.ic_no_photo);
-                IVS[b].getLayoutParams().height = 100;
-                IVS[b].getLayoutParams().width = 100;
-                IVS[b].requestLayout();
-                IVS[b].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                IVS[b].setVisibility(View.VISIBLE);
+            if (indexCamera < 6){
+                IVS[indexCamera].setBackgroundColor(Color.BLACK);
+                IVS[indexCamera].setImageResource(R.drawable.ic_no_photo);
+                IVS[indexCamera].setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                IVS[indexCamera].requestLayout();
+                IVS[indexCamera].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                IVS[indexCamera].setVisibility(View.VISIBLE);
             }
 
             indexCamera--;
@@ -386,6 +387,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
 
     @Override
     public void onPictureTaken(byte[] bytes, Camera camera) {
+        IVS[indexPhoto].setImageResource(0);
 
         bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
