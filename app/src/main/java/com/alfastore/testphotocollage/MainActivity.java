@@ -132,6 +132,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
             if (indexCamera == 6){
                 tvSysDate.setText("");
                 setViewVisibility(R.id.captureBtn, View.VISIBLE);
+                setViewVisibility(R.id.ibFlash, View.VISIBLE);
                 setViewVisibility(R.id.saveBtn, View.GONE);
             }else {
                 indexPhoto--;
@@ -226,12 +227,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
     private void setupSurfaceHolder() {
         if (indexCamera < 6){
             setViewVisibility(R.id.captureBtn, View.VISIBLE);
+            setViewVisibility(R.id.ibFlash, View.VISIBLE);
 
             surfaceHolder = SVS[indexCamera].getHolder();
             surfaceHolder.addCallback(this);
             setCaptureBtnClick();
         }else {
             setViewVisibility(R.id.captureBtn, View.GONE);
+            setViewVisibility(R.id.ibFlash, View.GONE);
+
+            flash = false;
 
             setViewVisibility(R.id.saveBtn, View.VISIBLE);
 
