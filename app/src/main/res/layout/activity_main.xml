@@ -37,6 +37,7 @@
                     android:id="@+id/ivIcon"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
                     android:layout_centerInParent="true" />
 
             </RelativeLayout>
@@ -56,6 +57,7 @@
                     android:id="@+id/ivIcon1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
                     android:layout_centerInParent="true" />
 
             </RelativeLayout>
@@ -85,6 +87,7 @@
                     android:id="@+id/ivIcon2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
                     android:layout_centerInParent="true" />
 
             </RelativeLayout>
@@ -103,6 +106,7 @@
                     android:id="@+id/ivIcon3"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
                     android:layout_centerInParent="true" />
 
             </RelativeLayout>
@@ -132,6 +136,7 @@
                     android:id="@+id/ivIcon4"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
                     android:layout_centerInParent="true" />
 
             </RelativeLayout>
@@ -150,6 +155,7 @@
                     android:id="@+id/ivIcon5"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
                     android:layout_centerInParent="true" />
 
             </RelativeLayout>

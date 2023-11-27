@@ -19,7 +19,9 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -31,6 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -276,7 +279,34 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
                     Canvas canvas = new Canvas(returnedBitmap);
                     clContent.draw(canvas);
 
+                    // Make Images to String
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    returnedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream);
+                    byte[] imageBytes = stream.toByteArray();
+                    String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+
+                    Log.e("TESTES", "Images String : " + imageString);
+
                     saveImage(returnedBitmap);
+
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                    LayoutInflater inflater = getLayoutInflater();
+                    View dialogView = inflater.inflate(R.layout.alert_imageview_string, null);
+                    dialogBuilder.setView(dialogView);
+                    ImageView imageview = (ImageView) dialogView.findViewById(R.id.ivImageString);
+
+                    byte[] decodedString = Base64.decode(imageString.getBytes(), Base64.DEFAULT);
+                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                    imageview.setImageBitmap(decodedByte);
+
+                    AlertDialog alertDialog = dialogBuilder.create();
+
+                    Button btnClose = (Button) dialogView.findViewById(R.id.btnClose);
+                    btnClose.setOnClickListener(v -> {
+                        alertDialog.dismiss();
+                    });
+
+                    alertDialog.show();
                 }
             });
         }
